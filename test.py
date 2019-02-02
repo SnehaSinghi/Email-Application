@@ -94,8 +94,8 @@ class Application(Frame):
 
         subject_text = varSubject.get() # gets the contents of the combo box for the subject line
 
-        username = 'singhi.sneha98@gmail.com'  # use your email address as the username
-        password = 'Franchise008*' # password used to login to your email account
+        username = 'email'  # use your email address as the username
+        password = 'password' # password used to login to your email account
 
         b=1 # create a counter set it to start at 1
 
