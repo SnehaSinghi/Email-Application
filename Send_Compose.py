@@ -94,8 +94,8 @@ class Application(Frame):
 
         subject_text = varSubject.get() # gets the contents of the combo box for the subject line
 
-        username = 'email'  # use your email address as the username
-        password = 'password' # password used to login to your email account
+        username = 'singhi.sneha98@gmail.com'  # use your email address as the username
+        password = 'Franchise008*' # password used to login to your email account
 
         b=1 # create a counter set it to start at 1
 
@@ -109,7 +109,7 @@ class Application(Frame):
         msg['To'] = to_address
         msg['Subject'] = subject_text
         msg.attach(MIMEText(text_Letter))
-        server = smtplib.SMTP('smtp.gmail.com') # for gmail use: smtp.gmail.com
+        server = smtplib.SMTP('smtp.gmail.com', 587) # for gmail use: smtp.gmail.com
         server.ehlo()
         server.starttls()
         server.ehlo()
@@ -128,7 +128,7 @@ class Application(Frame):
                 msg['To'] = to_address
                 msg['Subject'] = subject_text
                 msg.attach(MIMEText(text_Letter))
-                server = smtplib.SMTP('smtp.gmail.com ') # for gmail use: smtp.gmail.com
+                server = smtplib.SMTP('smtp.gmail.com ', 587) # for gmail use: smtp.gmail.com
                 server.ehlo()
                 server.starttls()
                 server.ehlo()
