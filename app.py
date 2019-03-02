@@ -1,8 +1,8 @@
 from flask import Flask, render_template, json, request
-from flaskext.mysql import MySQL
+#from flaskext.mysql import MySQL
 from werkzeug import generate_password_hash, check_password_hash
 
-mysql = MySQL()
+#mysql = MySQL()
 app = Flask(__name__)
 
 # MySQL configurations
@@ -10,7 +10,7 @@ app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = ''
 app.config['MYSQL_DATABASE_DB'] = 'Email'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-mysql.init_app(app)
+#mysql.init_app(app)
 
 """app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
