@@ -1,13 +1,14 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-
-   <title>MailRun</title>
+  <!-- Required meta tags -->
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
    <link href="../static/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
    <link href="../static/css/inbox.css" rel="stylesheet" id="bootstrap-css">
-
-    <script src="../static/js/jquery.min.js"></script>
-    <script src="../static/js/bootstrap.min.js"></script>
-    <script type="text/javascript">
+   <script src="../static/js/jquery.min.js"></script>
+   <script src="../static/js/bootstrap.min.js"></script>
+   <script type="text/javascript">
         window.alert = function(){};
         var defaultCSS = document.getElementById('bootstrap-css');
         function changeCSS(css){
@@ -19,22 +20,20 @@
           window.parent.postMessage( iframe_height, 'https://coderglass.com');
         });
     </script>
+
+    {% if title %}
+    <title>MailRun - {{ title }} </title>
+    {% else %}
+    <title>MailRun</title>
+    {% endif %}
+
 </head>
 <body>
 
 	<div class="container">
     <div class="row">
-        <div class="col-sm-3 col-md-2">
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                    Gmail <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                    <li ><a  style='color:red;' href="#">Mail</a></li>
-                    <li><a href="#">Contacts</a></li>
-                    <li><a href="#">Tasks</a></li>
-                </ul>
-            </div>
+        <div class="col-sm-3 col-md-2" style = "padding: 10px 24px;">
+                <button type="button" class="btn btn-primary">MailRun</button>
         </div>
         <div class="col-sm-9 col-md-10">
             <!-- Split button -->
@@ -74,7 +73,7 @@
                 </ul>
             </div>
             <div class="pull-right">
-                <span class="text-muted"><b>1</b>â€“<b>50</b> of <b>277</b></span>
+                <span class="text-muted"><b>1</b>-<b>50</b> of <b>277</b></span>
                 <div class="btn-group btn-group-sm">
                     <button type="button" class="btn btn-default">
                         <span class="glyphicon glyphicon-chevron-left"></span>
@@ -89,7 +88,7 @@
     <hr />
     <div class="row">
         <div class="col-sm-3 col-md-2">
-            <a href="#" class="btn btn-danger btn-sm btn-block" role="button">COMPOSE</a>
+            <a href="{{ url_for('compose') }}" class="btn btn-danger btn-sm btn-block" role="button">COMPOSE</a>
             <hr />
             <ul class="nav nav-pills nav-stacked">
                 <li class="active"><a href="#"><span class="badge pull-right">1546</span> Inbox </a>

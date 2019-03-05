@@ -1,10 +1,11 @@
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, Flask
 from Test import app, db, bcrypt
 from Test.models import User
 from flask_login import login_user, current_user, logout_user, login_required
 from Test.forms import RegistrationForm, LoginForm, UpdateAccountForm
 import secrets
 import os
+import smtplib
 from PIL import Image
 
 
@@ -34,14 +35,14 @@ def register():
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('inbox'))
     form = LoginForm()
     if(form.validate_on_submit()):
             user = User.query.filter_by(email = form.email.data).first()
             if user and bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user, remember = form.remember.data)
                 next_page = request.args.get('next')
-                return redirect(next_page) if next_page else redirect(url_for('home'))
+                return redirect(next_page) if next_page else redirect(url_for('inbox'))
             else:
                 flash('Login unsuccessful. Please check username and password', 'danger')
     return render_template('login.html', title = 'Login', form = form)
@@ -81,3 +82,27 @@ def account():
         form.email.data = current_user.email
     image_file = url_for('static', filename = 'img/' + current_user.image_file)
     return render_template('account.html', title = 'Account', image_file = image_file, form = form)
+
+@app.route("/inbox")
+def inbox():
+    return render_template('inbox.html', title = 'Inbox')
+
+@app.route("/compose")
+def compose():
+    return render_template('compose.html', title = 'Compose')
+
+
+@app.route('/emailSent',methods = ['POST', 'GET'])
+def result():
+   if request.method == 'POST':
+      result = request.form
+      server = smtplib.SMTP('smtp.gmail.com', 587)
+      server.starttls()
+      print("------------------------>"+current_user.email)
+      print("------------------------>"+current_user.password)
+      server.login(current_user.email, "Franchise008*")
+      msg="Subject: "+result['subject']+"\n\n"+result['message']
+      server.sendmail("singhi.sneha98@gmail.com", result['to'], msg)
+      server.quit()
+      flash('Email has been succesfully sent', 'success')
+      return redirect(url_for('inbox'))

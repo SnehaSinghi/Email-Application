@@ -39,9 +39,6 @@
 						            <li class="nav-item">
 						                <a class="nav-link" href="#"><i class="fa fa-bookmark"></i> Important</a>
 						            </li>
-						            <li class="nav-item">
-						                <a class="nav-link" href="#"><i class="fa fa-inbox"></i> Inbox <span class="badge badge-danger">4</span></a>
-						            </li>
 						        </ul>
 							</div>
 						</div>
@@ -63,16 +60,17 @@
 								</div>
 							</div>
 							<div class="col-lg-12 p-0 message-box-input">
-								<form>
+								<form action = "/emailSent" method = "POST">
 								  	<div class="form-group">
-								    	<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="To">
-								    	<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Subject">
-								  		<textarea class="form-control" id="exampleFormControlTextarea1" rows="6"></textarea>
+								    	<input name="to" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="To">
+								    	<input name="subject" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Subject">
+								    	<input name="message" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Message">
+                      <br>
+        							<button type="submit" class="btn btn-primary btn-sm pl-3 pr-3">SEND</a>
 								  	</div>
 								 </form>
 							</div>
 							<div class="co-lg-12 message-box-last-content p-2">
-								<a href="#" class="btn btn-primary btn-sm pl-3 pr-3">SEND</a>
 								<span>
 									<i class="fa fa-paperclip" aria-hidden="true"></i>
 									<i class="fa fa-file" aria-hidden="true"></i>
