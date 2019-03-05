@@ -75,7 +75,62 @@ class BasicTests(unittest.TestCase):
      response = self.register('Mitali', 'mitali123@gmail.com', 'FlaskIsReallyAwesome', 'FlaskIsReallyAwesome')
      self.assertIn(b'Username already exists', response.data)
 
+    def test_invalid_user_registration_empty_username(self):
+     response = self.register('', 'mitali123@gmail.com', 'FlaskIsReallyAwesome', 'FlaskIsReallyAwesome')
+     self.assertIn(b'This field is required', response.data)
 
+    def test_invalid_user_registration_empty_email(self):
+     response = self.register('Mitali', '', 'FlaskIsReallyAwesome', 'FlaskIsReallyAwesome')
+     self.assertIn(b'This field is required', response.data)
 
+    def test_invalid_user_registration_empty_password(self):
+     response = self.register('Mitali', 'm@gmail.com', '', 'FlaskIsReallyAwesome')
+     self.assertIn(b'This field is required', response.data)
+
+    def test_invalid_user_registration_empty_Cpassword(self):
+     response = self.register('Mitali', 'm@gmail.com', 'hey', '')
+     self.assertIn(b'This field is required', response.data)
+
+    def test_invalid_user_registration_small_username(self):
+     response = self.register('M', 'mitali123@gmail.com', 'FlaskIsReallyAwesome', 'FlaskIsReallyAwesome')
+     self.assertIn(b'Field must be between 2 and 20 characters long', response.data)
+
+    def test_invalid_user_registration_long_username(self):
+     response = self.register('abcdefghijklmnopqrstuvwxyz', 'mitali123@gmail.com', 'FlaskIsReallyAwesome', 'FlaskIsReallyAwesome')
+     self.assertIn(b'Field must be between 2 and 20 characters long', response.data)
+
+    def test_invalid_user_registration_invalid_email(self):
+     response = self.register('Mitali', 'mitali123gmail.com', 'FlaskIsReallyAwesome', 'FlaskIsReallyAwesome')
+     self.assertIn(b'Invalid email address.', response.data)
+
+    def test_valid_login(self):
+     response = self.register('Mitali', 'mitali@gmail.com', 'FlaskIsAwesome', 'FlaskIsAwesome')
+     self.assertEqual(response.status_code, 200)
+     response = self.login('mitali@gmail.com', 'FlaskIsAwesome')
+     self.assertEqual(response.status_code, 200)
+
+    def test_invalid_login_invalidEmail(self):
+     response = self.register('Mitali', 'mitali@gmail.com', 'FlaskIsAwesome', 'FlaskIsAwesome')
+     self.assertEqual(response.status_code, 200)
+     response = self.login('m', 'FlaskIsAwesome')
+     self.assertIn(b'Invalid email address.', response.data)
+
+    def test_invalid_login_invalidPassword(self):
+     response = self.register('Mitali', 'mitali@gmail.com', 'FlaskIsAwesome', 'FlaskIsAwesome')
+     self.assertEqual(response.status_code, 200)
+     response = self.login('mitali@gmail.com', '1FlaskIsAwesome')
+     self.assertIn(b'Login unsuccessful. Please check username and password', response.data)
+
+    def test_invalid_login_emptyPassword(self):
+     response = self.register('Mitali', 'mitali@gmail.com', 'FlaskIsAwesome', 'FlaskIsAwesome')
+     self.assertEqual(response.status_code, 200)
+     response = self.login('mitali@gmail.com', '')
+     self.assertIn(b'This field is required', response.data)
+
+    def test_invalid_login_emptyEmail(self):
+     response = self.register('Mitali', 'mitali@gmail.com', 'FlaskIsAwesome', 'FlaskIsAwesome')
+     self.assertEqual(response.status_code, 200)
+     response = self.login('', 'FlaskIsAwesome')
+     self.assertIn(b'This field is required', response.data)
 if __name__ == "__main__":
     unittest.main()
