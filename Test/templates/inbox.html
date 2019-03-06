@@ -28,8 +28,8 @@
         <li><a href="{{ url_for('about')}}">About</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="#"><span class="glyphicon glyphicon-user"></span> Account Settings</a></li>
-        <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+        <li><a href="{{ url_for('account')}}"><span class="glyphicon glyphicon-user"></span> Account Settings</a></li>
+        <li><a href="{{ url_for('logout')}}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
       </ul>
     </div>
   </nav>
@@ -37,6 +37,17 @@
 <br>
 	<div class="container">
     <div class="row">
+      <div class="col-md-8 mt-5">
+        {% with messages = get_flashed_messages(with_categories = true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class = "alert alert-{{ category }}">
+          {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
         <div class="col-sm-9 col-md-10">
             <div class="btn-group">
                 <ul class="dropdown-menu" role="menu">
@@ -58,10 +69,10 @@
             <ul class="nav nav-pills nav-stacked">
                 <li class="active"><a href="#"><span class="badge pull-right">1546</span> Inbox </a>
                 </li>
-                <li><a style='color:black;' href="https://www.coderglass.com">Starred</a></li>
-                <li><a style='color:black;' href="https://www.coderglass.com">Important</a></li>
-                <li><a style='color:black;' href="https://www.coderglass.com">Sent Mail</a></li>
-                <li><a style='color:black;' href="https://www.coderglass.com">
+                <li><a style='color:black;' href="#">Starred</a></li>
+                <li><a style='color:black;' href="#">Important</a></li>
+                <li><a style='color:black;' href="#">Sent Mail</a></li>
+                <li><a style='color:black;' href="#">
 				<span class="badge pull-right">445</span>Drafts</a></li>
             </ul>
         </div>
