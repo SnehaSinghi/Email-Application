@@ -48,11 +48,21 @@ class BasicTests(unittest.TestCase):
             follow_redirects=True
         )
 
+
     def logout(self):
         return self.app.get(
             '/logout',
             follow_redirects=True
         )
+
+    def account(self, username, email, picture):
+        return self.app.post(
+            '/account',
+            data=dict(username = username, email=email, picture = picture),
+            follow_redirects=True
+        )
+
+
 
     def test_valid_user_registration(self):
         response = self.register('Mitali', 'mitali@gmail.com', '123', '123')
@@ -132,5 +142,14 @@ class BasicTests(unittest.TestCase):
      self.assertEqual(response.status_code, 200)
      response = self.login('', 'FlaskIsAwesome')
      self.assertIn(b'This field is required', response.data)
+
+    def test_valid_account_registration(self):
+        response = self.account('Mitali', 'mitali@gmail.com', 'default.jpeg')
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_account_registration(self) :
+        response = self.account('Mitali', 'mitali@gmail.com', 'Assignment.docx')
+        self.assertIn(b'File does not have an approved extension: jpg, png', response.data)
+
 if __name__ == "__main__":
     unittest.main()

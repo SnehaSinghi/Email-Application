@@ -10,11 +10,12 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 import time
-import os
 from werkzeug import secure_filename
 import smtplib
+import imaplib
+import email
+import time
 from PIL import Image
-
 
 @app.route("/")
 @app.route("/home")
@@ -32,7 +33,7 @@ def register():
     form = RegistrationForm()
     if(form.validate_on_submit()):
         hashed_pwd = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username = form.username.data, email = form.email.data, password = hashed_pwd)
+        user = User(username = form.username.data, email = form.email.data, password = form.password.data)
         db.session.add(user)
         db.session.commit()
         flash('Your account has been created. You can now login', 'success')
@@ -46,7 +47,7 @@ def login():
     form = LoginForm()
     if(form.validate_on_submit()):
             user = User.query.filter_by(email = form.email.data).first()
-            if user and bcrypt.check_password_hash(user.password, form.password.data):
+            if user and (user.password == form.password.data):
                 login_user(user, remember = form.remember.data)
                 next_page = request.args.get('next')
                 return redirect(next_page) if next_page else redirect(url_for('inbox'))
@@ -92,32 +93,39 @@ def account():
 
 @app.route("/inbox")
 def inbox():
+    FROM_EMAIL  = current_user.email
+    FROM_PWD    = current_user.password
+    SMTP_SERVER = "imap.gmail.com"
+    SMTP_PORT   = 993
+    try:
+        mail = imaplib.IMAP4_SSL(SMTP_SERVER)
+        mail.login(FROM_EMAIL, FROM_PWD)
+        mail.select('inbox')
+
+        type, data = mail.search(None, 'ALL')
+        mail_ids = data[0]
+
+        id_list = mail_ids.split()
+        first_email_id = int(id_list[0])
+        latest_email_id = int(id_list[10])
+        for i in range(latest_email_id,first_email_id, -1):
+            typ, data = mail.fetch(str(i), "(RFC822)")
+            for response_part in data:
+                if isinstance(response_part, tuple):
+                    msg = email.message_from_bytes(response_part[1])
+                    email_date = msg["Date"]
+                    email_subject = msg['subject']
+                    email_from = msg['from']
+                    print(email_from + "\n")
+
+    except Exception as e:
+        print(e)
     return render_template('inbox.html', title = 'Inbox')
+
 
 @app.route("/compose")
 def compose():
     return render_template('compose.html', title = 'Compose')
-
-
-def send_mail(recipient, subject, message):
-
-    username = "singhi.sneha98@gmail.com"
-    password = "Franchise008*"
-
-    msg = MIMEMultipart()
-    msg['From'] = username
-    msg['To'] = recipient
-    msg['Subject'] = subject
-    msg.attach(MIMEText(message))
-
-    print('sending mail to ' + recipient + ' on ' + subject)
-    mailServer = smtplib.SMTP('smtp.gmail.com', 587)
-    mailServer.ehlo()
-    mailServer.starttls()
-    mailServer.ehlo()
-    mailServer.login(username, password)
-    mailServer.sendmail(username, recipient, msg.as_string())
-    mailServer.close()
 
 @app.route('/emailSent',methods = ['POST', 'GET'])
 def result():
@@ -125,35 +133,22 @@ def result():
       result = request.form
       server = smtplib.SMTP('smtp.gmail.com', 587)
       server.starttls()
-      print("------------------------>"+current_user.email)
-      print("------------------------>"+current_user.password)
-      server.login(current_user.email, "Franchise008*")
+      server.login(current_user.email, current_user.password)
       if request.method == 'POST':
           f = request.files['file']
           f.save(secure_filename(f.filename))
-
       msg = MIMEMultipart()
-      # storing the senders email address
       msg['From'] = current_user.email
-      # storing the receivers email address
       msg['To'] = result['to']
-      # storing the subject
       msg['Subject'] = result['subject']
-      # string to store the body of the mail
       body = result['message']
-      # attach the body with the msg instance
       msg.attach(MIMEText(body, 'plain'))
-      # open the file to be sent
       filename = f.filename
       attachment = open(f.filename, "rb")
-      # instance of MIMEBase and named as p
       p = MIMEBase('application', 'octet-stream')
-      # To change the payload into encoded form
       p.set_payload((attachment).read())
-      # encode into base64
       encoders.encode_base64(p)
       p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-      # attach the instance 'p' to instance 'msg'
       msg.attach(p)
       message=msg.as_string()
       server.sendmail(current_user.email, result['to'], message)
