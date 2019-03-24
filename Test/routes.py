@@ -92,6 +92,7 @@ def account():
 
 @app.route("/inbox")
 def inbox():
+    count = 0
     FROM_EMAIL  = current_user.email
     FROM_PWD    = current_user.password
     SMTP_SERVER = "imap.gmail.com"
@@ -99,31 +100,36 @@ def inbox():
     try:
         mail = imaplib.IMAP4_SSL(SMTP_SERVER)
         mail.login(FROM_EMAIL, FROM_PWD)
-        mail.select('inbox')
+        mail.select('"[Gmail]/All Mail"')
         type, data = mail.search(None, 'ALL')
         mail_ids = data[0]
         id_list = mail_ids.split()
         first_email_id = int(id_list[0])
-        latest_email_id = int(id_list[10])
+        latest_email_id = int(id_list[-1])
         for i in range(latest_email_id,first_email_id, -1):
-            typ, data = mail.fetch(str(i), "(RFC822)")
-            for response_part in data:
-                if isinstance(response_part, tuple):
-                    msg = email.message_from_bytes(response_part[1])
-                    email_date = msg['Date']
-                    email_subject = msg['subject']
-                    email_from = msg['from']
-                    for part in msg.walk():
-                        if part.get_content_type() == "text/plain":
-                            body = part.get_payload(decode=True).decode('utf-8')
-                    print(email_from + " "+email_date+" "+body)
-                    new_mail = Email(date = email_date, from_addr = email_from,
-                                  subject = email_subject, body = "Hello", user = current_user)
-                    db.session.add(new_mail)
-                    db.session.commit()
+            if count < 10:
+                typ, data = mail.fetch(str(i), "(RFC822)")
+                for response_part in data:
+                    if isinstance(response_part, tuple):
+                        msg = email.message_from_bytes(response_part[1])
+                        email_date = msg['Date']
+                        email_subject = msg['subject']
+                        email_from = msg['from']
+                        for part in msg.walk():
+                            if part.get_content_type() == "text/plain":
+                                body = part.get_payload(decode=True).decode('utf-8')
+                                print(email_from + " "+email_date+" "+body)
+                                new_mail = Email(date = email_date, from_addr = email_from,
+                                subject = email_subject, body = body , user = current_user)
+                                db.session.add(new_mail)
+                                db.session.commit()
+                            count = count + 1
+            else:
+                emails = Email.query.all()
+                return render_template('inbox.html', title = 'Inbox', emails=emails)
     except Exception as e:
         print(e)
-    return render_template('inbox.html', title = 'Inbox')
+
 
 
 @app.route("/compose")

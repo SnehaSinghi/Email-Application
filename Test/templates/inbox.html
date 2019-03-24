@@ -63,8 +63,8 @@
             <span class="badge pull-right">445</span>Drafts</a></li>
           </ul>
         </div>
+        {% for email in emails %}
         <div class="col-sm-9 col-md-10">
-          <!-- Tab panes -->
           <div class="tab-content">
             <div class="tab-pane fade in active" id="home">
               <div class="list-group">
@@ -75,11 +75,10 @@
                     </label>
                   </div>
                   <span class="glyphicon glyphicon-star-empty"></span>
-                  <span class="name" style="min-width: 120px; display: inline-block;">Varun Singh</span>
-                  <span class="">You have uploaded 2 files</span>
+                  <span class="name" style="min-width: 120px; display: inline-block;">{{ email.from_addr }}</span>
+                  <span class="">{{ email.subject }}</span>
                   <span class="text-muted" style="font-size: 11px;">
-                    - The files will be available for a limited time only unless
-                    you are a sendspace Premium member.
+                    {{ email.body }}
                   </span>
                   <span class="badge">12:10 AM</span>
                   <span class="pull-right">
@@ -88,8 +87,9 @@
                   </a>
                 </div>
               </div>
-            </div>  
+            </div>
           </div>
+          {% endfor %}
         </div>
       </div>
     </body>
