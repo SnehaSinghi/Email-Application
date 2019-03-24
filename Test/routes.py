@@ -181,3 +181,17 @@ def result():
       server.quit()
       flash('Email has been succesfully sent', 'success')
       return redirect(url_for('inbox'))
+
+@app.route("/view_email/<int:email_id>")
+def view_email(email_id):
+    email = Email.query.get_or_404(email_id)
+    return render_template('view_email.html', title=email.subject, email=email)
+
+@app.route("/view_email/<int:email_id>/delete", methods=['POST'])
+@login_required
+def delete_email(email_id):
+    email = Email.query.get_or_404(email_id)
+    db.session.delete(email)
+    db.session.commit()
+    flash('Your email has been moved to trash', 'success')
+    return redirect(url_for('inbox'))
