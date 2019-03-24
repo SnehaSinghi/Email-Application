@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request, Flask
 from Test import app, db, bcrypt
-from Test.models import User
+from Test.models import User, Email
 from flask_login import login_user, current_user, logout_user, login_required
 from Test.forms import RegistrationForm, LoginForm, UpdateAccountForm
 import secrets
@@ -32,7 +32,6 @@ def register():
         return redirect(url_for('home'))
     form = RegistrationForm()
     if(form.validate_on_submit()):
-        hashed_pwd = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username = form.username.data, email = form.email.data, password = form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -101,10 +100,8 @@ def inbox():
         mail = imaplib.IMAP4_SSL(SMTP_SERVER)
         mail.login(FROM_EMAIL, FROM_PWD)
         mail.select('inbox')
-
         type, data = mail.search(None, 'ALL')
         mail_ids = data[0]
-
         id_list = mail_ids.split()
         first_email_id = int(id_list[0])
         latest_email_id = int(id_list[10])
@@ -113,11 +110,17 @@ def inbox():
             for response_part in data:
                 if isinstance(response_part, tuple):
                     msg = email.message_from_bytes(response_part[1])
-                    email_date = msg["Date"]
+                    email_date = msg['Date']
                     email_subject = msg['subject']
                     email_from = msg['from']
-                    print(email_from + "\n")
-
+                    for part in msg.walk():
+                        if part.get_content_type() == "text/plain":
+                            body = part.get_payload(decode=True).decode('utf-8')
+                    print(email_from + " "+email_date+" "+body)
+                    new_mail = Email(date = email_date, from_addr = email_from,
+                                  subject = email_subject, body = "Hello", user = current_user)
+                    db.session.add(new_mail)
+                    db.session.commit()
     except Exception as e:
         print(e)
     return render_template('inbox.html', title = 'Inbox')
@@ -126,6 +129,8 @@ def inbox():
 @app.route("/compose")
 def compose():
     return render_template('compose.html', title = 'Compose')
+
+@app.route('/emailSent',methods = ['POST', 'GET'])
 
 @app.route('/emailSent',methods = ['POST', 'GET'])
 def result():
