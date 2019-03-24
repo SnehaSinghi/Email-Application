@@ -92,6 +92,10 @@ def account():
 
 @app.route("/inbox")
 def inbox():
+    emails = Email.query.all()
+    for item in emails:
+         db.session.delete(item)
+         db.session.commit()
     count = 0
     FROM_EMAIL  = current_user.email
     FROM_PWD    = current_user.password
@@ -104,10 +108,9 @@ def inbox():
         type, data = mail.search(None, 'ALL')
         mail_ids = data[0]
         id_list = mail_ids.split()
-        first_email_id = int(id_list[0])
+        first_email_id = int(id_list[-10])
         latest_email_id = int(id_list[-1])
         for i in range(latest_email_id,first_email_id, -1):
-            if count < 10:
                 typ, data = mail.fetch(str(i), "(RFC822)")
                 for response_part in data:
                     if isinstance(response_part, tuple):
@@ -123,14 +126,10 @@ def inbox():
                                 subject = email_subject, body = body , user = current_user)
                                 db.session.add(new_mail)
                                 db.session.commit()
-                            count = count + 1
-            else:
-                emails = Email.query.all()
-                return render_template('inbox.html', title = 'Inbox', emails=emails)
     except Exception as e:
         print(e)
-
-
+    emails = Email.query.all()
+    return render_template('inbox.html', title = 'Inbox', emails=emails)
 
 @app.route("/compose")
 def compose():
