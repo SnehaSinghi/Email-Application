@@ -54,11 +54,11 @@
         <a href="{{ url_for('compose') }}" class="btn btn-danger btn-sm btn-block" role="button">COMPOSE</a>
         <hr />
         <ul class="nav nav-pills nav-stacked">
-          <li class="active"><a href="#"><span class="badge pull-right">1546</span> Inbox </a>
+          <li class="active"><a href="{{ url_for('inbox')  }}"><span class="badge pull-right">1546</span> Inbox </a>
           </li>
           <li><a style='color:black;' href="#">Starred</a></li>
-          <li><a style='color:black;' href="#">Important</a></li>
-          <li><a style='color:black;' href="#">Sent Mail</a></li>
+          <li><a style='color:black;' href="{{  url_for('important')  }}">Important</a></li>
+          <li><a style='color:black;' href="{{  url_for('sent')  }}">Sent Mail</a></li>
           <li><a style='color:black;' href="#">
             <span class="badge pull-right">445</span>Drafts</a></li>
           </ul>

@@ -90,21 +90,20 @@ def account():
     image_file = url_for('static', filename = 'img/' + current_user.image_file)
     return render_template('account.html', title = 'Account', image_file = image_file, form = form)
 
-@app.route("/inbox")
-def inbox():
+def inbox_display(category):
     emails = Email.query.all()
     for item in emails:
          db.session.delete(item)
          db.session.commit()
-    count = 0
     FROM_EMAIL  = current_user.email
     FROM_PWD    = current_user.password
     SMTP_SERVER = "imap.gmail.com"
     SMTP_PORT   = 993
     try:
+        url = "[Gmail]/" + category
         mail = imaplib.IMAP4_SSL(SMTP_SERVER)
         mail.login(FROM_EMAIL, FROM_PWD)
-        mail.select('"[Gmail]/All Mail"')
+        mail.select('"{}"'.format(url))
         type, data = mail.search(None, 'ALL')
         mail_ids = data[0]
         id_list = mail_ids.split()
@@ -129,13 +128,30 @@ def inbox():
     except Exception as e:
         print(e)
     emails = Email.query.all()
+    return emails
+
+@app.route("/inbox")
+def inbox():
+    emails = inbox_display("All Mail")
     return render_template('inbox.html', title = 'Inbox', emails=emails)
+
+
+@app.route("/sent")
+def sent():
+    emails = inbox_display("Drafts")
+    return render_template('inbox.html', title = 'Sent Mail', emails=emails)
+
+
+@app.route("/important")
+def important():
+    emails = inbox_display("Important")
+    return render_template('inbox.html', title = 'Important', emails=emails)
+
 
 @app.route("/compose")
 def compose():
     return render_template('compose.html', title = 'Compose')
 
-@app.route('/emailSent',methods = ['POST', 'GET'])
 
 @app.route('/emailSent',methods = ['POST', 'GET'])
 def result():
