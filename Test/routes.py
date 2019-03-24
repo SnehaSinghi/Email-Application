@@ -152,36 +152,6 @@ def important():
 def compose():
     return render_template('compose.html', title = 'Compose')
 
-""""
-@app.route('/emailSent',methods = ['POST', 'GET'])
-def result():
-   if request.method == 'POST':
-      result = request.form
-      server = smtplib.SMTP('smtp.gmail.com', 587)
-      server.starttls()
-      server.login(current_user.email, current_user.password)
-      if request.method == 'POST':
-          f = request.files['file']
-          f.save(secure_filename(f.filename))
-      msg = MIMEMultipart()
-      msg['From'] = current_user.email
-      msg['To'] = result['to']
-      msg['Subject'] = result['subject']
-      body = result['message']
-      msg.attach(MIMEText(body, 'plain'))
-      filename = f.filename
-      attachment = open(f.filename, "rb")
-      p = MIMEBase('application', 'octet-stream')
-      p.set_payload((attachment).read())
-      encoders.encode_base64(p)
-      p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-      msg.attach(p)
-      message=msg.as_string()
-      server.sendmail(current_user.email, result['to'], message)
-      server.quit()
-      flash('Email has been succesfully sent', 'success')
-      return redirect(url_for('inbox'))
-"""
 @app.route('/emailSent',methods = ['POST', 'GET'])
 def result():
    if request.method == 'POST':
@@ -195,13 +165,10 @@ def result():
            result = request.form
            server = smtplib.SMTP('smtp.gmail.com', 587)
            server.starttls()
-           print("------------------------>"+current_user.email)
-           print("------------------------>"+current_user.password)
-           server.login(current_user.email, "Franchise008*")
+           server.login(current_user.email, current_user.password)
            if request.method == 'POST':
                f = request.files['file']
                f.save(secure_filename(f.filename))
-
            msg = MIMEMultipart()
            msg['From'] = current_user.email
            msg['To'] = result['to']
