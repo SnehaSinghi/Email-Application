@@ -147,6 +147,16 @@ def important():
     emails = inbox_display("Important")
     return render_template('inbox.html', title = 'Important', emails=emails)
 
+@app.route("/drafts")
+def drafts():
+    emails = inbox_display("Drafts")
+    return render_template('inbox.html', title = 'Drafts', emails=emails)
+
+@app.route("/starred")
+def starred():
+    emails = inbox_display("Starred")
+    return render_template('inbox.html', title = 'Starred', emails=emails)
+
 
 @app.route("/compose")
 def compose():

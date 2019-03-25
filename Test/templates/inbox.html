@@ -1,44 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8">
+	<meta charset="utf-8">
+	<link rel="icon" href="../static/img/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <link href="../static/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <link href="../static/css/inbox.css" rel="stylesheet" id="bootstrap-css">
-  <link rel="icon" href="../static/img/favicon.ico">
-
-  <script src="../static/js/jquery.min.js"></script>
-  <script src="../static/js/bootstrap.min.js"></script>
-
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'main.css') }}">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
   {% if title %}
   <title>MailRun - {{ title }} </title>
   {% else %}
   <title>MailRun</title>
   {% endif %}
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="../static/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="../static/css/compose.css">
 </head>
 <body>
-  <header>
-  <nav class="navbar navbar-expand-md navbar-inverse fixed-top">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="{{  url_for('home')  }}">MailRun</a>
-      </div>
-      <ul class="nav navbar-nav">
-        <li><a href="{{ url_for('home') }}">Home</a></li>
-        <li><a href="{{ url_for('about')}}">About</a></li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="{{ url_for('account')}}"><span class="glyphicon glyphicon-user"></span> Account Settings</a></li>
-        <li><a href="{{ url_for('logout')}}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-      </ul>
-    </div>
-  </nav>
-  </header>
+	<header class="site-header">
+		<nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+			<div class="container">
+				<a class="navbar-brand mr-4" href="/">MailRun</a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarToggle">
+					<div class="navbar-nav mr-auto">
+						<a class="nav-item nav-link" href="{{url_for('home')}}">Home</a>
+						<a class="nav-item nav-link" href="{{url_for('about')}}">About</a>
+					</div>
+					<!-- Navbar Right Side -->
+					<div class="navbar-nav topnav-right">
+						{% if current_user.is_authenticated %}
+								<a class="nav-item nav-link" href = "{{url_for('account')}}">Account</a>
+								<a class="nav-item nav-link" href = "{{url_for('logout')}}">Logout</a>
+						{% else %}
+								<a class="nav-item nav-link" href="{{url_for('login')}}">Login</a>
+								<a class="nav-item nav-link" href="{{url_for('register')}}">Register</a>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</nav>
+		{% block header %}{% endblock %}
+	</header>
   <br>
   <div class="container">
     <div class="row">
-      <div class="col-md-8 mt-5">
+      <div class="col-md-8">
         {% with messages = get_flashed_messages(with_categories = true) %}
         {% if messages %}
         {% for category, message in messages %}
@@ -50,48 +60,52 @@
         {% endwith %}
       </div>
     </div>
-    <div class="row">
-      <div class="col-sm-3 col-md-2">
-        <a href="{{ url_for('compose') }}" class="btn btn-danger btn-sm btn-block" role="button">COMPOSE</a>
-        <hr />
-        <ul class="nav nav-pills nav-stacked">
-          <li class="active"><a href="{{ url_for('inbox')  }}"><span class="badge pull-right">1546</span> Inbox </a>
-          </li>
-          <li><a style='color:black;' href="#">Starred</a></li>
-          <li><a style='color:black;' href="{{  url_for('important')  }}">Important</a></li>
-          <li><a style='color:black;' href="{{  url_for('sent')  }}">Sent Mail</a></li>
-          <li><a style='color:black;' href="#">
-            <span class="badge pull-right">445</span>Drafts</a></li>
-          </ul>
+			<div class="col-lg-4 left-sidebar p-5 border">
+			<div class="row">
+			<div class="col-lg-12 mb-4">
+        	<a href="{{	url_for('compose')	}}" class="btn btn-danger btn-block">COMPOSE</a>
+	</div>
+<div class="col-lg-12">
+				<ul class="nav">
+								<li class="nav-item">
+										<a class="nav-link" href="{{ url_for('inbox') }}"><i class="fa fa-inbox"></i> Inbox </a>
+								</li>
+								<li class="nav-item">
+										<a class="nav-link" href="{{	url_for('starred')}}"><i class="fa fa-star"></i> Stared</a>
+								</li>
+								<li class="nav-item">
+										<a class="nav-link" href="{{	url_for('sent')	}}"><i class="fa fa-rocket"></i> Sent</a>
+								</li>
+								<li class="nav-item">
+										<a class="nav-link" href="{{	url_for('important')	}}"><i class="fa fa-bookmark"></i> Important</a>
+								</li>
+						</ul>
         </div>
+		</div>
+</div>
+
+<div class ="messege-right col-lg-8">
         {% for email in emails %}
         <div class="col-sm-9 col-md-10">
           <div class="tab-content">
             <div class="tab-pane fade in active" id="home">
               <div class="list-group">
                 <a href="{{  url_for('view_email', email_id=email.id)  }}" class="list-group-item">
-                  <div class="checkbox">
-                    <label>
-                      <input type="checkbox">
-                    </label>
-                  </div>
                   <span class="glyphicon glyphicon-star-empty"></span>
                   <span class="name" style="min-width: 120px; display: inline-block;">{{ email.from_addr }}</span>
                   <span class="">{{ email.subject }}</span>
                   <span class="text-muted" style="font-size: 11px;">
-                    {{ email.body }}
+                    {{ email.body[0:40] }}
                   </span>
-                  <span class="badge">12:10 AM</span>
-                  <span class="pull-right">
-                    <span class="glyphicon glyphicon-paperclip">
-                    </span></span>
+                  <span class="badge">{{	email.date }}</span>
                   </a>
                 </div>
               </div>
             </div>
           </div>
           {% endfor %}
-        </div>
-      </div>
+</div>
+</div>
+
     </body>
     </html>
