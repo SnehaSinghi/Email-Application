@@ -107,7 +107,7 @@ def inbox_display(category):
         type, data = mail.search(None, 'ALL')
         mail_ids = data[0]
         id_list = mail_ids.split()
-        first_email_id = int(id_list[-10])
+        first_email_id = int(id_list[-40])
         latest_email_id = int(id_list[-1])
         for i in range(latest_email_id,first_email_id, -1):
                 typ, data = mail.fetch(str(i), "(RFC822)")
@@ -125,6 +125,22 @@ def inbox_display(category):
                                 subject = email_subject, body = body , user = current_user)
                                 db.session.add(new_mail)
                                 db.session.commit()
+
+                        att_path = ""
+                        for part in msg.walk():
+                            if part.get_content_maintype() == 'multipart':
+                                continue
+                            if part.get('Content-Disposition') is None:
+                                continue
+
+                            filename = part.get_filename()
+                            att_path = os.path.join("/attachments", filename)
+
+                            if not os.path.isfile(att_path):
+                                fp = open(att_path, 'wb')
+                                fp.write(part.get_payload(decode=True))
+                                fp.close()
+
     except Exception as e:
         print(e)
     emails = Email.query.all()
@@ -197,6 +213,7 @@ def result():
            server.quit()
        flash('Email has been succesfully sent', 'success')
    return redirect(url_for('inbox'))
+
 
 @app.route("/view_email/<int:email_id>")
 def view_email(email_id):
