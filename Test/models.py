@@ -21,7 +21,8 @@ class User(db.Model, UserMixin):
 
 class Email(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    date = db.Column(db.String(100), nullable=False)
+    email_id = db.Column(db.Integer, nullable = False)
+    date = db.Column(db.Text, nullable=False)
     from_addr = db.Column(db.String(120), nullable = False)
     subject = db.Column(db.String(100), nullable=False)
     body = db.Column(db.Text, nullable=False)

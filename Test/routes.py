@@ -16,6 +16,10 @@ import imaplib
 import email
 import time
 from PIL import Image
+from email.utils import parsedate_tz, mktime_tz, formatdate
+import time
+
+
 
 @app.route("/")
 @app.route("/home")
@@ -107,39 +111,28 @@ def inbox_display(category):
         type, data = mail.search(None, 'ALL')
         mail_ids = data[0]
         id_list = mail_ids.split()
-        first_email_id = int(id_list[-40])
+        first_email_id = int(id_list[-5])
         latest_email_id = int(id_list[-1])
         for i in range(latest_email_id,first_email_id, -1):
                 typ, data = mail.fetch(str(i), "(RFC822)")
                 for response_part in data:
                     if isinstance(response_part, tuple):
                         msg = email.message_from_bytes(response_part[1])
+                        email_uid = i
                         email_date = msg['Date']
+                        tt = parsedate_tz(email_date)
+                        timestamp = mktime_tz(tt)
+                        print(formatdate(timestamp))
                         email_subject = msg['subject']
                         email_from = msg['from']
+                        print(email_uid)
                         for part in msg.walk():
                             if part.get_content_type() == "text/plain":
                                 body = part.get_payload(decode=True).decode('utf-8')
-                                print(email_from + " "+email_date+" "+body)
-                                new_mail = Email(date = email_date, from_addr = email_from,
+                                new_mail = Email(email_id = email_uid, date = email_date, from_addr = email_from,
                                 subject = email_subject, body = body , user = current_user)
                                 db.session.add(new_mail)
                                 db.session.commit()
-
-                        att_path = ""
-                        for part in msg.walk():
-                            if part.get_content_maintype() == 'multipart':
-                                continue
-                            if part.get('Content-Disposition') is None:
-                                continue
-
-                            filename = part.get_filename()
-                            att_path = os.path.join("/attachments", filename)
-
-                            if not os.path.isfile(att_path):
-                                fp = open(att_path, 'wb')
-                                fp.write(part.get_payload(decode=True))
-                                fp.close()
 
     except Exception as e:
         print(e)
@@ -154,7 +147,7 @@ def inbox():
 
 @app.route("/sent")
 def sent():
-    emails = inbox_display("Drafts")
+    emails = inbox_display("Sent Mail")
     return render_template('inbox.html', title = 'Sent Mail', emails=emails)
 
 
@@ -172,6 +165,11 @@ def drafts():
 def starred():
     emails = inbox_display("Starred")
     return render_template('inbox.html', title = 'Starred', emails=emails)
+
+@app.route("/trash")
+def trash():
+    emails = inbox_display("Trash")
+    return render_template('inbox.html', title = 'Trash', emails=emails)
 
 
 @app.route("/compose")
@@ -220,11 +218,20 @@ def view_email(email_id):
     email = Email.query.get_or_404(email_id)
     return render_template('view_email.html', title=email.subject, email=email)
 
-@app.route("/view_email/<int:email_id>/delete", methods=['POST'])
+@app.route("/delete/<string:email_uid>", methods=['POST'])
 @login_required
-def delete_email(email_id):
-    email = Email.query.get_or_404(email_id)
-    db.session.delete(email)
-    db.session.commit()
-    flash('Your email has been moved to trash', 'success')
+def delete_email(email_uid):
+    FROM_EMAIL  = current_user.email
+    FROM_PWD    = current_user.password
+    SMTP_SERVER = "imap.gmail.com"
+    SMTP_PORT   = 993
+    try:
+        print("I am here")
+        mail = imaplib.IMAP4_SSL(SMTP_SERVER)
+        mail.login(FROM_EMAIL, FROM_PWD)
+        mail.select('[Gmail]/Trash')  # select all trash
+        mail.store("1:*", '+FLAGS', '\\Deleted')  #Flag all Trash as Deleted
+        mail.expunge()
+    except Exception as e:
+        print(e)
     return redirect(url_for('inbox'))
