@@ -131,12 +131,9 @@ def inbox_display(category):
                         for part in msg.walk():
                             if part.get_content_type() == "text/plain":
                                 body = part.get_payload(decode=True).decode('utf-8')
-                                new_mail = Email(email_id = email_uid, date = email_date, from_addr = email_from,
-                                subject = email_subject, body = body , user = current_user)
-                                db.session.add(new_mail)
-                                db.session.commit()
                 emailBody = data[0][1]
                 mail_con = email.message_from_bytes(emailBody)
+                flag = 0
                 for part in mail_con.walk():
                     if part.get_content_maintype() == 'multipart':
                         continue
@@ -150,6 +147,17 @@ def inbox_display(category):
                             fp = open(filePath, 'wb')
                             fp.write(part.get_payload(decode=True))
                             fp.close()
+                            new_mail = Email(email_id = email_uid, date = email_date, from_addr = email_from,
+                            subject = email_subject, body = body , user = current_user, attachments = filePath)
+                            db.session.add(new_mail)
+                            db.session.commit()
+                            flag = 1
+                if flag == 0:
+                    new_mail = Email(email_id = email_uid, date = email_date, from_addr = email_from,
+                    subject = email_subject, body = body , user = current_user)
+                    db.session.add(new_mail)
+                    db.session.commit()
+
     except Exception as e:
         print(e)
     emails = Email.query.all()
@@ -184,7 +192,7 @@ def starred():
 
 @app.route("/trash")
 def trash():
-    emails = inbox_display("Trash")
+    emails = inbox_display("Bin")
     return render_template('inbox.html', title = 'Trash', emails=emails)
 
 
@@ -248,6 +256,7 @@ def view_email(email_id):
     email = Email.query.get_or_404(email_id)
     return render_template('view_email.html', title=email.subject, email=email)
 
+
 @app.route("/delete/<string:email_uid>", methods=['POST'])
 @login_required
 def delete_email(email_uid):
@@ -256,11 +265,10 @@ def delete_email(email_uid):
     SMTP_SERVER = "imap.gmail.com"
     SMTP_PORT   = 993
     try:
-        print("I am here")
         mail = imaplib.IMAP4_SSL(SMTP_SERVER)
         mail.login(FROM_EMAIL, FROM_PWD)
-        mail.select('[Gmail]/Trash')  # select all trash
-        mail.store("1:*", '+FLAGS', '\\Deleted')  #Flag all Trash as Deleted
+        mail.select('[Gmail]/Bin')
+        mail.store(email_uid, '+FLAGS', '\\Deleted')
         mail.expunge()
     except Exception as e:
         print(e)

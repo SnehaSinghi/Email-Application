@@ -26,6 +26,7 @@ class Email(db.Model):
     from_addr = db.Column(db.String(120), nullable = False)
     subject = db.Column(db.String(100), nullable=False)
     body = db.Column(db.Text, nullable=False)
+    attachments = db.Column(db.Text, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
