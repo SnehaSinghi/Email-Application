@@ -20,6 +20,9 @@ from email.utils import parsedate_tz, mktime_tz, formatdate
 import time
 
 
+detach_dir = 'D:/Python/GitRepo/Email-Application/Test/attachments/'
+
+
 
 @app.route("/")
 @app.route("/home")
@@ -122,7 +125,6 @@ def inbox_display(category):
                         email_date = msg['Date']
                         tt = parsedate_tz(email_date)
                         timestamp = mktime_tz(tt)
-                        print(formatdate(timestamp))
                         email_subject = msg['subject']
                         email_from = msg['from']
                         print(email_uid)
@@ -133,7 +135,21 @@ def inbox_display(category):
                                 subject = email_subject, body = body , user = current_user)
                                 db.session.add(new_mail)
                                 db.session.commit()
-
+                emailBody = data[0][1]
+                mail_con = email.message_from_bytes(emailBody)
+                for part in mail_con.walk():
+                    if part.get_content_maintype() == 'multipart':
+                        continue
+                    if part.get('Content-Disposition') is None:
+                        continue
+                    fileName = part.get_filename()
+                    if bool(fileName):
+                        filePath = os.path.join(detach_dir, fileName)
+                        if not os.path.isfile(filePath) :
+                            print(fileName)
+                            fp = open(filePath, 'wb')
+                            fp.write(part.get_payload(decode=True))
+                            fp.close()
     except Exception as e:
         print(e)
     emails = Email.query.all()
